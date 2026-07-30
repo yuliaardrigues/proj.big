@@ -1,9 +1,7 @@
 from fastapi import FastAPI
-from database.database import SessionLocal
-from database.models import Noticia
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
-
+from database.database import SessionLocal, engine, Base
+from database.models import Noticia
 
 app = FastAPI(
     title="News Collector API",
@@ -18,9 +16,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/dashboard")
-def dashboard():
-    return FileResponse("dashboard.html")
+Base.metadata.create_all(engine)
 
 @app.get("/")
 def home():
@@ -31,11 +27,10 @@ def home():
 
 @app.get("/noticias")
 def listar_noticias():
-
     session = SessionLocal()
     noticias = session.query(Noticia).all()
     resultado = []
-    
+
     for noticia in noticias:
         resultado.append({
             "id": noticia.id,
